@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meridian Estates</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module">
+const { useState, useEffect, useRef } = React;
+
+function App() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const [flipped, setFlipped] = useState(null);
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&display=swap";
+    document.head.appendChild(link);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      document.head.removeChild(link);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  const listings = [
+    { name: "The Ashcombe House", loc: "Belgravia, London", price: "£12.4M", size: "6,200 sq ft", agent: "Clara Whitfield", phone: "+44 20 7946 0192", grad: "linear-gradient(135deg,#1F3A3D,#0d1a1b)" },
+    { name: "Villa Serrano", loc: "Marbella, Spain", price: "€8.9M", size: "5,100 sq ft", agent: "Marco Sinclair", phone: "+34 952 76 44 10", grad: "linear-gradient(135deg,#B8935A,#6f5730)" },
+    { name: "Ridgeview Estate", loc: "Aspen, Colorado", price: "$14.1M", size: "7,800 sq ft", agent: "Naomi Reece", phone: "+1 970 555 0148", grad: "linear-gradient(135deg,#14181C,#3a4348)" },
+  ];
+
+  const next = () => setActive((a) => (a + 1) % listings.length);
+  const prev = () => setActive((a) => (a - 1 + listings.length) % listings.length);
+
+  return (
+    <div style={{ fontFamily: "'Inter', sans-serif", background: "#F6F1E9", color: "#14181C" }}>
+      <style>{`
+        .disp { font-family: 'Cormorant Garamond', serif; }
+        .hairline { border-color: rgba(20,24,28,0.15); }
+        .flip-card { perspective: 1200px; }
+        .flip-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-face { backface-visibility: hidden; }
+        .flip-back { transform: rotateY(180deg); }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+      `}</style>
+
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 transition-all duration-300"
+        style={{
+          background: scrolled || menuOpen ? "rgba(246,241,233,0.96)" : "rgba(246,241,233,0.85)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid rgba(20,24,28,0.1)",
+          paddingTop: scrolled ? "1rem" : "1.5rem",
+          paddingBottom: scrolled ? "1rem" : "1.5rem",
+        }}
+      >
+        <span className="disp text-xl tracking-wide" style={{ color: "#1F3A3D" }}>MERIDIAN</span>
+        <div className="hidden md:flex gap-10 text-sm tracking-wider uppercase" style={{ color: "#14181C" }}>
+          <a href="#collection" className="hover:opacity-60">Collection</a>
+          <a href="#about" className="hover:opacity-60">Philosophy</a>
+          <a href="#contact" className="hover:opacity-60">Enquire</a>
+        </div>
+        <button className="hidden md:block text-sm px-5 py-2 border hairline focus:outline-2 focus:outline-offset-2" style={{ color: "#14181C" }}>
+          Private Viewing
+        </button>
+        <button className="md:hidden flex flex-col gap-1.5 focus:outline-2" onClick={() => setMenuOpen((o) => !o)} aria-label="Menu">
+          <span style={{ width: 22, height: 1.5, background: "#14181C", transform: menuOpen ? "rotate(45deg) translateY(6px)" : "none", transition: "transform 0.3s" }} />
+          <span style={{ width: 22, height: 1.5, background: "#14181C", opacity: menuOpen ? 0 : 1, transition: "opacity 0.3s" }} />
+          <span style={{ width: 22, height: 1.5, background: "#14181C", transform: menuOpen ? "rotate(-45deg) translateY(-6px)" : "none", transition: "transform 0.3s" }} />
+        </button>
+      </nav>
+      {menuOpen && (
+        <div className="fixed top-16 left-0 right-0 z-40 flex flex-col gap-6 px-8 py-10 md:hidden text-lg disp" style={{ background: "#F6F1E9", borderBottom: "1px solid rgba(20,24,28,0.1)" }}>
+          <a href="#collection" onClick={() => setMenuOpen(false)}>Collection</a>
+          <a href="#about" onClick={() => setMenuOpen(false)}>Philosophy</a>
+          <a href="#contact" onClick={() => setMenuOpen(false)}>Enquire</a>
+        </div>
+      )}
+
+      {/* Split-screen hero */}
+      <header className="grid md:grid-cols-2 min-h-screen pt-20 md:pt-0">
+        <div className="flex flex-col justify-center px-8 md:px-16 py-16 md:py-0 order-2 md:order-1">
+          <p className="uppercase text-xs md:text-sm mb-6" style={{ color: "#B8935A", letterSpacing: "0.3em" }}>
+            Est. 1998 — Twelve Cities, One Standard
+          </p>
+          <h1 className="disp" style={{ fontSize: "clamp(2.6rem, 6vw, 4.6rem)", color: "#14181C", lineHeight: 1.02 }}>
+            Homes that hold their own history.
+          </h1>
+          <p className="mt-8 max-w-md text-base md:text-lg" style={{ color: "#3d4348" }}>
+            Meridian represents a small number of exceptional residences each year — chosen, not listed.
+          </p>
+          <div className="mt-10 flex items-center gap-6">
+            <button className="px-7 py-3 text-sm tracking-wide focus:outline-2 focus:outline-offset-2" style={{ background: "#1F3A3D", color: "#F6F1E9" }}>
+              View the Collection
+            </button>
+            <span className="text-sm underline underline-offset-4 cursor-pointer" style={{ color: "#14181C" }}>Our approach</span>
+          </div>
+        </div>
+        <div className="relative order-1 md:order-2 min-h-[45vh] md:min-h-screen overflow-hidden" style={{ background: "linear-gradient(160deg,#1F3A3D,#0d1a1b)" }}>
+          <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 200 200" fill="none" preserveAspectRatio="xMidYMid slice">
+            <path d="M20 140 L100 60 L180 140 M40 140 V180 H160 V140" stroke="#B8935A" strokeWidth="1" />
+            <circle cx="100" cy="30" r="12" stroke="#F6F1E9" strokeWidth="0.5" />
+          </svg>
+          <div className="absolute bottom-8 left-8 right-8 flex justify-between text-xs uppercase tracking-widest" style={{ color: "rgba(246,241,233,0.7)" }}>
+            <span>Belgravia, London</span>
+            <span>£12.4M</span>
+          </div>
+        </div>
+      </header>
+
+      <section id="collection" className="px-8 md:px-16 py-24 md:py-32">
+        <div className="flex items-end justify-between mb-14 flex-wrap gap-4">
+          <h2 className="disp" style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)" }}>Current Collection</h2>
+          <div className="flex items-center gap-3">
+            <button onClick={prev} className="w-10 h-10 border hairline flex items-center justify-center focus:outline-2" aria-label="Previous">←</button>
+            <button onClick={next} className="w-10 h-10 border hairline flex items-center justify-center focus:outline-2" aria-label="Next">→</button>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {listings.map((l, i) => (
+            <div
+              key={i}
+              className="flip-card cursor-pointer"
+              onClick={() => setFlipped(flipped === i ? null : i)}
+              style={{ height: 380, opacity: i === active ? 1 : 0.45, transform: i === active ? "scale(1.02)" : "scale(1)", transition: "opacity 0.4s, transform 0.4s" }}
+            >
+              <div className="flip-inner relative w-full h-full" style={{ transform: flipped === i ? "rotateY(180deg)" : "none" }}>
+                <div className="flip-face absolute inset-0 p-8 flex flex-col justify-between" style={{ background: l.grad, color: "#F6F1E9" }}>
+                  <span className="text-xs tracking-widest uppercase" style={{ color: "#F6F1E9", opacity: 0.7 }}>{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3 className="disp text-2xl">{l.name}</h3>
+                    <p className="text-sm mt-1 opacity-75">{l.loc}</p>
+                    <div className="flex items-end justify-between mt-8 pt-4 border-t" style={{ borderColor: "rgba(246,241,233,0.25)" }}>
+                      <span className="disp text-xl">{l.price}</span>
+                      <span className="text-xs opacity-70">{l.size}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flip-face flip-back absolute inset-0 p-8 flex flex-col justify-center gap-4" style={{ background: "#F6F1E9", border: "1px solid rgba(20,24,28,0.15)" }}>
+                  <p className="text-xs uppercase tracking-widest" style={{ color: "#B8935A" }}>Listing Agent</p>
+                  <p className="disp text-2xl">{l.agent}</p>
+                  <p className="text-sm" style={{ color: "#3d4348" }}>{l.phone}</p>
+                  <span className="text-xs mt-4 underline underline-offset-4">Tap to flip back</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="about" className="px-8 md:px-16 py-24 md:py-32" style={{ background: "#1F3A3D", color: "#F6F1E9" }}>
+        <div className="max-w-3xl">
+          <p className="uppercase text-xs mb-6" style={{ color: "#B8935A", letterSpacing: "0.3em" }}>Our Philosophy</p>
+          <p className="disp" style={{ fontSize: "clamp(1.6rem, 3vw, 2.6rem)", lineHeight: 1.35 }}>
+            We turn down more homes than we take on. A property earns its place in the collection through provenance, craft, and the story a buyer can continue — not square footage alone.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-10 mt-16 text-sm" style={{ color: "rgba(246,241,233,0.75)" }}>
+          <div><p className="disp text-3xl mb-2" style={{ color: "#F6F1E9" }}>28</p><p>Years advising private collectors of residential property</p></div>
+          <div><p className="disp text-3xl mb-2" style={{ color: "#F6F1E9" }}>41</p><p>Homes currently under Meridian mandate worldwide</p></div>
+          <div><p className="disp text-3xl mb-2" style={{ color: "#F6F1E9" }}>100%</p><p>Off-market or by private introduction only</p></div>
+        </div>
+      </section>
+
+      <section id="contact" className="px-8 md:px-16 py-24 md:py-32 flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <div>
+          <h2 className="disp" style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)" }}>Request a<br />private viewing.</h2>
+        </div>
+        <form className="flex flex-col gap-4 w-full md:max-w-sm" onSubmit={(e) => e.preventDefault()}>
+          <input placeholder="Full name" className="bg-transparent border-b hairline py-2 focus:outline-none text-sm" />
+          <input placeholder="Email address" className="bg-transparent border-b hairline py-2 focus:outline-none text-sm" />
+          <button className="mt-4 px-7 py-3 text-sm tracking-wide self-start focus:outline-2 focus:outline-offset-2" style={{ background: "#14181C", color: "#F6F1E9" }}>
+            Send Enquiry
+          </button>
+        </form>
+      </section>
+
+      <footer className="px-8 md:px-16 py-8 border-t hairline flex flex-col md:flex-row justify-between gap-2 text-xs" style={{ color: "#6b706f" }}>
+        <span>تم جميع حقوق النشر — الأستاذ Mohamed Trky © 2026</span>
+        <span>London · New York · Marbella</span>
+      </footer>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
